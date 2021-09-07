@@ -24,10 +24,13 @@ class TweetsController < ApplicationController
   def create
     @tweet = Tweet.new(tweet_params)
 
-    if @tweet.save
-      redirect_to @tweet, notice: 'Tweet was successfully created.'
-    else
-      render :new
+    respond_to do |format|
+      if @tweet.save
+        format.html { redirect_to @tweet, notice: 'Tweet was successfully created.' }
+      else
+        format.turbo_stream { render turbo_stream: turbo_stream.replace(@tweet, partial: "tweets/form", locals: { tweet: @tweet }) }
+        format.html { render :new }
+      end
     end
   end
 
